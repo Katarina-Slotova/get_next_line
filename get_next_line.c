@@ -57,7 +57,6 @@ char	*ft_completed_line(char *str)
 		str_newline[i] = str[i];
 		i++;
 	}
-	free(str);
 	str_newline[i] = '\0';
 	return (str_newline);
 }
@@ -65,29 +64,31 @@ char	*ft_completed_line(char *str)
 int	get_next_line(const int fd, char **line)
 {
 	char		*buff;
-	static char	*saved_str[FD_MAX];
+	static char	*saved_strs[FD_MAX];
 	int			read_res;
 	
+	if (!saved_strs[fd])
+		saved_strs[fd] = "";
 	read_res = 1;
 	if (!fd || !line || BUFF_SIZE <= 0 || fd < 0 || fd > FD_MAX)
 		return (-1);
 	buff = (char *)malloc(sizeof(char) * (BUFF_SIZE + 1));
 	if (!buff)
 		return (-1);
-	while (read_res > 0 && !ft_strchr(saved_str[fd], '\n'))
+	while (read_res > 0 && !ft_strchr(saved_strs[fd], '\n'))
 	{
 		read_res = read(fd, buff, BUFF_SIZE);
 		if (read_res == -1)
 		{
-			free(saved_str[fd]);
+			free(saved_strs[fd]);
 			return (-1);
 		}
 		buff[read_res] = '\0';
-		saved_str[fd] = ft_strjoin(saved_str[fd], buff);
+		saved_strs[fd] = ft_strjoin(saved_strs[fd], buff);
 	}
 	free(buff);
-	*line = ft_completed_line(saved_str[fd]);
-	saved_str[fd] = ft_leftover(saved_str[fd]);
+	*line = ft_completed_line(saved_strs[fd]);
+	saved_strs[fd] = ft_leftover(saved_strs[fd]);
  	if (read_res == 0)
 		return (0);
 	return (1);
