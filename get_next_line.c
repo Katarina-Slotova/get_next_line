@@ -6,7 +6,7 @@
 /*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/09 08:48:09 by kslotova          #+#    #+#             */
-/*   Updated: 2022/01/03 16:02:01 by kslotova         ###   ########.fr       */
+/*   Updated: 2022/01/04 16:33:27 by kslotova         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,12 +62,16 @@ static char	*ft_completed_line(char *str)
 	return (str_newline);
 }
 
-static char	*ft_read_file(char **saved_strs, int fd, char *buff, int *res)
+static char	*ft_read_file(char **saved_strs, int fd, int *res)
 {
+	char	*buff;
 	int		read_res;
 	char	*tmp;
 
 	read_res = 1;
+	buff = (char *)malloc(sizeof(char) * (BUFF_SIZE + 1));
+	if (!buff)
+		return (NULL);
 	while (read_res > 0 && !ft_strchr(saved_strs[fd], '\n'))
 	{
 		read_res = read(fd, buff, BUFF_SIZE);
@@ -79,13 +83,13 @@ static char	*ft_read_file(char **saved_strs, int fd, char *buff, int *res)
 		free(saved_strs[fd]);
 		saved_strs[fd] = tmp;
 	}
+	free(buff);
 	return (saved_strs[fd]);
 }
 
 int	get_next_line(const int fd, char **line)
 {
-	char		buff[BUFF_SIZE + 1];
-	static char	*saved_strs[FD_MAX];
+	static char	*saved_strs[FD_MAX + 1];
 	int			res;
 
 	if (fd < 0 || fd > FD_MAX || !line || BUFF_SIZE <= 0)
@@ -96,12 +100,13 @@ int	get_next_line(const int fd, char **line)
 		if (!saved_strs[fd])
 			return (-1);
 		saved_strs[fd][0] = '\0';
-	}		
-	saved_strs[fd] = ft_read_file(saved_strs, fd, buff, &res);
+	}
+	saved_strs[fd] = ft_read_file(saved_strs, fd, &res);
+	if (saved_strs[fd] == NULL)
+		return (-1);
 	if (res == 0 && saved_strs[fd][0] == '\0')
 	{
-		free(saved_strs[fd]);
-		saved_strs[fd] = NULL;
+		ft_strdel(&saved_strs[fd]);
 		return (0);
 	}
 	*line = ft_completed_line(saved_strs[fd]);
