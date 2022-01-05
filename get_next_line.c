@@ -6,7 +6,7 @@
 /*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/09 08:48:09 by kslotova          #+#    #+#             */
-/*   Updated: 2022/01/04 16:33:27 by kslotova         ###   ########.fr       */
+/*   Updated: 2022/01/04 19:31:37 by kslotova         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ static char	*ft_leftover(char *str)
 	saved_str = (char *)malloc(sizeof(char) * (ft_strlen(str) - i + 1));
 	if (!saved_str)
 		return (0);
-	i++;
+	i += (str[i] == '\n');
 	while (str[i])
 	{
 		saved_str[j] = str[i];
